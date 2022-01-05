@@ -38,7 +38,9 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   // create a new category
   try {
-    const categoryData = await Category.create(req.body);
+    const categoryData = await Category.create({
+      category_name: req.body.category_name,
+    });
     res.status(200).json(locationData);
   } catch (err) {
     res.status(400).json(err);
@@ -47,6 +49,7 @@ router.post('/', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   // update a category by its `id` value
+  try {
   Category.update(
     {
       id: req.body.id,
@@ -57,14 +60,15 @@ router.put('/:id', async (req, res) => {
         category_id: req.params.category_id,
       },
     }
-  )
-    .then((updatedCategory) => {
-      res.json(updatedCategory);
-    })
-    .catch((err) => {
-      console.log(err);
-      res.json(err);
-    });
+  );
+    if (!categoryData) {
+      res.status(404).json({ message: "No category with that ID!"});
+      return;
+    }
+    res.status(200).json(categoryData);
+  } catch (err) {
+    res.status(500).json(err);
+  }
 });
 
 router.delete('/:id', async (req, res) => {
@@ -72,8 +76,8 @@ router.delete('/:id', async (req, res) => {
   try {
     const categoryData = await Category.destroy({
       where: {
-        id: req.params.id
-      }
+        id: req.params.id,
+      },
     });
 
     if (!categoryData) {
